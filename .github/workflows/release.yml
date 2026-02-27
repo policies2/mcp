@@ -116,10 +116,27 @@ jobs:
           files: artifacts/policy-mcp-*
           generate_release_notes: true  # auto-generates changelog from commits
 
+  # Test the npm shim on every supported Node version and OS
+  npm-test:
+    name: Test npm — Node ${{ matrix.node }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ["22", "24"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Run tests
+        working-directory: npm
+        run: node test.js
+
   # Publish the npm shim after binaries are available on the GitHub Release
   npm-publish:
     name: Publish npm package
-    needs: release
+    needs: [release, npm-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

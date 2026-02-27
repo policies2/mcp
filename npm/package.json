@@ -6,7 +6,8 @@
     "policy-mcp": "run.js"
   },
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node install.js",
+    "test": "node test.js"
   },
   "files": [
     "install.js",

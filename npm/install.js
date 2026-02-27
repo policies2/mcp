@@ -10,10 +10,7 @@ const pkg = JSON.parse(
 );
 const version = pkg.version;
 
-function getArtifactName() {
-  const platform = process.platform;
-  const arch = process.arch;
-
+function getArtifactName(platform = process.platform, arch = process.arch) {
   if (platform === "linux" && arch === "x64") return "policy-mcp-linux-x86_64";
   if (platform === "linux" && arch === "arm64") return "policy-mcp-linux-aarch64";
   if (platform === "darwin" && arch === "arm64") return "policy-mcp-macos-arm64";
@@ -68,7 +65,11 @@ async function main() {
   console.log(`policy-mcp installed to ${dest}`);
 }
 
-main().catch((err) => {
-  console.error("Failed to install policy-mcp:", err.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error("Failed to install policy-mcp:", err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { getArtifactName, download };
