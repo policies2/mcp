@@ -10,6 +10,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: webfactory/ssh-agent@v0.9.0
@@ -49,9 +51,18 @@ jobs:
             artifact: policy-mcp-windows-x86_64.exe
 
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Start SSH agent service (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Get-Service ssh-agent | Set-Service -StartupType Automatic
+          Start-Service ssh-agent
 
       - uses: webfactory/ssh-agent@v0.9.0
         with:
