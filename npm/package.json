@@ -1,0 +1,20 @@
+{
+  "name": "@policies2/mcp",
+  "version": "0.0.0",
+  "description": "npm shim for the policy-mcp MCP server",
+  "bin": {
+    "policy-mcp": "run.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js",
+    "test": "node test.js"
+  },
+  "files": [
+    "install.js",
+    "run.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
