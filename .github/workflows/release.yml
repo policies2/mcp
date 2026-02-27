@@ -42,7 +42,7 @@ jobs:
             target: aarch64-apple-darwin
             artifact: policy-mcp-macos-arm64
 
-          - os: macos-13            # Intel (x86_64)
+          - os: macos-latest        # cross-compile Intel (x86_64) from arm64 runner
             target: x86_64-apple-darwin
             artifact: policy-mcp-macos-x86_64
 
