@@ -11,22 +11,25 @@ use std::collections::HashMap;
 // Input types (need JsonSchema + Deserialize for rmcp tool macro)
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, JsonSchema)]
-pub struct EvaluateRulesInput {
+struct EvaluateRulesInput {
     #[schemars(description = "The policy rule DSL string to evaluate")]
     pub rule: String,
     #[schemars(description = "The JSON data object to evaluate the rule against")]
     pub data: serde_json::Value,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, JsonSchema)]
-pub struct ValidateRuleInput {
+struct ValidateRuleInput {
     #[schemars(description = "The policy rule DSL string to validate")]
     pub rule: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, JsonSchema)]
-pub struct ExplainRuleInput {
+struct ExplainRuleInput {
     #[schemars(description = "The policy rule DSL string to parse and explain")]
     pub rule: String,
 }
@@ -35,43 +38,49 @@ pub struct ExplainRuleInput {
 // Output types
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct EvaluateRulesOutput {
+struct EvaluateRulesOutput {
     pub result: bool,
     pub outcomes: HashMap<String, bool>,
     pub trace: Option<serde_json::Value>,
     pub error: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct ValidateRuleOutput {
+struct ValidateRuleOutput {
     pub valid: bool,
     pub error: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct OperatorInfo {
+struct OperatorInfo {
     pub operator: String,
     pub forms: Vec<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct ExplainOutput {
+struct ExplainOutput {
     pub rule_count: usize,
     pub rules: Vec<RuleExplain>,
     pub error: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct RuleExplain {
+struct RuleExplain {
     pub label: Option<String>,
     pub selector: String,
     pub outcome: String,
     pub conditions: Vec<ConditionExplain>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize)]
-pub struct ConditionExplain {
+struct ConditionExplain {
     #[serde(rename = "type")]
     pub kind: String,
     pub selector: Option<String>,
@@ -90,7 +99,8 @@ pub struct ConditionExplain {
 // Core logic (pure functions, independently testable)
 // ---------------------------------------------------------------------------
 
-pub fn do_evaluate_rules(rule: &str, data: serde_json::Value) -> EvaluateRulesOutput {
+#[allow(dead_code)]
+fn do_evaluate_rules(rule: &str, data: serde_json::Value) -> EvaluateRulesOutput {
     let rule_set = match parse_rules(rule) {
         Ok(rs) => rs,
         Err(e) => {
@@ -130,7 +140,8 @@ pub fn do_evaluate_rules(rule: &str, data: serde_json::Value) -> EvaluateRulesOu
     }
 }
 
-pub fn do_validate_rule(rule: &str) -> ValidateRuleOutput {
+#[allow(dead_code)]
+fn do_validate_rule(rule: &str) -> ValidateRuleOutput {
     match parse_rules(rule) {
         Ok(_) => ValidateRuleOutput {
             valid: true,
@@ -143,7 +154,8 @@ pub fn do_validate_rule(rule: &str) -> ValidateRuleOutput {
     }
 }
 
-pub fn do_list_operators() -> Vec<OperatorInfo> {
+#[allow(dead_code)]
+fn do_list_operators() -> Vec<OperatorInfo> {
     let all_variants = [
         ComparisonOperator::GreaterThanOrEqual,
         ComparisonOperator::LessThanOrEqual,
@@ -204,7 +216,8 @@ pub fn do_list_operators() -> Vec<OperatorInfo> {
         .collect()
 }
 
-pub fn do_explain_rule(rule: &str) -> ExplainOutput {
+#[allow(dead_code)]
+fn do_explain_rule(rule: &str) -> ExplainOutput {
     let rule_set = match parse_rules(rule) {
         Ok(rs) => rs,
         Err(e) => {
@@ -234,6 +247,7 @@ pub fn do_explain_rule(rule: &str) -> ExplainOutput {
     }
 }
 
+#[allow(dead_code)]
 fn explain_condition_group(cg: &engine::runner::model::ConditionGroup) -> ConditionExplain {
     let logical_op = cg
         .operator
