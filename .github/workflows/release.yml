@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  # Run tests first — don't release a broken build
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ENGINE_DEPLOY_KEY }}
+      - name: Configure git to use SSH for GitHub
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test
+
+  # Build a native release binary for each target platform
+  build:
+    name: Build — ${{ matrix.artifact }}
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: policy-mcp-linux-x86_64
+
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            artifact: policy-mcp-linux-aarch64
+
+          - os: macos-latest        # Apple Silicon (arm64)
+            target: aarch64-apple-darwin
+            artifact: policy-mcp-macos-arm64
+
+          - os: macos-13            # Intel (x86_64)
+            target: x86_64-apple-darwin
+            artifact: policy-mcp-macos-x86_64
+
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: policy-mcp-windows-x86_64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ENGINE_DEPLOY_KEY }}
+
+      - name: Configure git to use SSH for GitHub
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      # Rename to the platform-specific artifact name
+      - name: Stage artifact (Unix)
+        if: runner.os != 'Windows'
+        run: cp target/${{ matrix.target }}/release/policy-mcp ${{ matrix.artifact }}
+
+      - name: Stage artifact (Windows)
+        if: runner.os == 'Windows'
+        run: cp target/${{ matrix.target }}/release/policy-mcp.exe ${{ matrix.artifact }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+
+  # Gather all artifacts and publish the GitHub Release
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create the release
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/policy-mcp-*
+          generate_release_notes: true  # auto-generates changelog from commits
