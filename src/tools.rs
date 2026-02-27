@@ -1,8 +1,8 @@
 use engine::runner::evaluator::evaluate_rule_set_with_trace;
 use engine::runner::model::{ComparisonOperator, Condition};
 use engine::runner::parser::parse_rules;
-use rmcp::ServerHandler;
 use rmcp::model::{ServerCapabilities, ServerInfo};
+use rmcp::ServerHandler;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -292,28 +292,36 @@ pub struct PolicyTools;
 impl PolicyTools {
     /// Evaluate a policy rule DSL string against JSON data.
     /// Returns the overall result, per-outcome booleans, and an execution trace.
-    #[rmcp::tool(description = "Evaluate a policy rule DSL string against JSON data. Returns result, per-outcome booleans, execution trace, and any parse/eval error.")]
+    #[rmcp::tool(
+        description = "Evaluate a policy rule DSL string against JSON data. Returns result, per-outcome booleans, execution trace, and any parse/eval error."
+    )]
     fn evaluate_rules(&self, #[tool(aggr)] input: EvaluateRulesInput) -> String {
         let output = do_evaluate_rules(&input.rule, input.data);
         serde_json::to_string(&output).unwrap_or_else(|e| format!("{{\"error\":\"{e}\"}}"))
     }
 
     /// Validate that a rule string parses successfully without evaluating it.
-    #[rmcp::tool(description = "Check whether a policy rule DSL string is syntactically valid. Returns {valid: bool, error: string|null}.")]
+    #[rmcp::tool(
+        description = "Check whether a policy rule DSL string is syntactically valid. Returns {valid: bool, error: string|null}."
+    )]
     fn validate_rule(&self, #[tool(aggr)] input: ValidateRuleInput) -> String {
         let output = do_validate_rule(&input.rule);
         serde_json::to_string(&output).unwrap_or_else(|e| format!("{{\"error\":\"{e}\"}}"))
     }
 
     /// List every comparison operator supported by the policy DSL.
-    #[rmcp::tool(description = "List all comparison operators supported by the policy DSL, grouped by operator with all their accepted string forms.")]
+    #[rmcp::tool(
+        description = "List all comparison operators supported by the policy DSL, grouped by operator with all their accepted string forms."
+    )]
     fn list_operators(&self) -> String {
         let output = do_list_operators();
         serde_json::to_string(&output).unwrap_or_else(|e| format!("{{\"error\":\"{e}\"}}"))
     }
 
     /// Parse a rule and return a structured breakdown.
-    #[rmcp::tool(description = "Parse a policy rule DSL string and return a structured breakdown: selectors, outcomes, and conditions per rule.")]
+    #[rmcp::tool(
+        description = "Parse a policy rule DSL string and return a structured breakdown: selectors, outcomes, and conditions per rule."
+    )]
     fn explain_rule(&self, #[tool(aggr)] input: ExplainRuleInput) -> String {
         let output = do_explain_rule(&input.rule);
         serde_json::to_string(&output).unwrap_or_else(|e| format!("{{\"error\":\"{e}\"}}"))
@@ -531,10 +539,16 @@ mod tests {
     fn explain_rule_conditions_present() {
         let out = do_explain_rule(SIMPLE_RULE);
         let rule = &out.rules[0];
-        assert!(!rule.conditions.is_empty(), "expected at least one condition");
+        assert!(
+            !rule.conditions.is_empty(),
+            "expected at least one condition"
+        );
         let cond = &rule.conditions[0];
         assert_eq!(cond.kind, "comparison");
-        assert_eq!(cond.operator.as_deref(), Some("is greater than or equal to"));
+        assert_eq!(
+            cond.operator.as_deref(),
+            Some("is greater than or equal to")
+        );
     }
 
     #[test]
