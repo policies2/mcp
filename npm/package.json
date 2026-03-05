@@ -1,6 +1,6 @@
 {
   "name": "@policies2/mcp",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "npm shim for the policy-mcp MCP server",
   "bin": {
     "policy-mcp": "run.js"
