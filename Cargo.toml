@@ -1,6 +1,6 @@
 [package]
 name = "policy-mcp"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 
 [[bin]]
@@ -8,7 +8,7 @@ name = "policy-mcp"
 path = "src/main.rs"
 
 [dependencies]
-engine = { git = "https://github.com/policies2/engine" }
+engine = { git = "https://github.com/policies2/engine", tag = "v1.2.0" }
 rmcp = { version = "0.1", features = ["server", "transport-io", "macros"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
